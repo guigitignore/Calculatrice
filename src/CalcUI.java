@@ -35,24 +35,54 @@ public class CalcUI {
         return scanner.nextLine();     
     }
 
-    private void evaluer(String command){
-        String regex = "([-+]?(\\d*\\.?\\d+)?)([ij])";
-        
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(command);
-        
-        if (matcher.find()) {
-            System.out.println("match");
-            try{
-                int realPart = Integer.parseInt(matcher.group(0));
-                System.out.println("scan "+realPart);
-                int imaginaryPart = Integer.parseInt(matcher.group(1));
-                System.out.println("scan "+imaginaryPart);
+    private ObjEmpImaginaire parseComplexPrompt(String input){
+        Pattern pattern = Pattern.compile("^(?=[iI.\\d+-])([+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?(?![iI.\\d]))?([+-]?(?:(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?)?[iI])?$");
+        Matcher matcher = pattern.matcher(input);
 
+        ObjEmpImaginaire result=null;
+        double real=0;
+        double imaginary=0;
+        String groupString;
+
+        if (matcher.matches()){
+            try{
+                if ((groupString=matcher.group(1))!=null) real=Double.parseDouble(groupString);
+                if ((groupString=matcher.group(2))!=null){
+                    groupString=groupString.replace("+", "");
+                    switch (groupString){
+                        case "i":
+                            imaginary=1;
+                            break;
+                        case "-i":
+                            imaginary=-1;
+                            break;
+                        default:
+                            groupString=groupString.replace("i", "");
+                            imaginary=Double.parseDouble(groupString);
+                    }
+                }
+                result=new ObjEmpImaginaire(real, imaginary);
             }catch(Exception e){}
-            
-        }else{
-            
+        }
+
+
+        return result;
+    }
+
+
+    private void evaluer(String command){
+        IObjEmp emp;
+
+        if (command.isEmpty()) return;
+
+        try{
+            if ((emp=parseComplexPrompt(command))!=null){
+                pile.push(emp);
+            }else{
+                pile.doOperation(command);
+            }
+        }catch(Exception e){
+            System.out.println("An error occured: "+e.getMessage());
         }
 
     }

@@ -19,7 +19,9 @@ public class PileRPL {
         return nbObj==0;
     }
 
-    public void doOperation(String operation) throws IncompatibleOperationException,StackIsFullException,StackIsEmptyException,UnknownOperationException{
+    public void doOperation(String operation) throws IncompatibleOperationException,StackIsFullException,StackIsEmptyException,UnknownOperationException,InsufficiantStackException{
+        if (nbObj<2) throw new InsufficiantStackException(2);
+
         IObjEmp premier=pop();
         IObjEmp deuxieme=pop();
 
