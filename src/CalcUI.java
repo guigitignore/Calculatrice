@@ -69,6 +69,17 @@ public class CalcUI {
         return result;
     }
 
+    private ObjEmpEntier parseIntegerPrompt(String input){
+        ObjEmpEntier result=null;
+
+        Pattern pattern=Pattern.compile("^(-?)(0|([1-9][0-9]*))(\\.[0-9]+)?$");
+        Matcher matcher=pattern.matcher(input);
+
+        System.out.println(matcher);
+
+        return result;
+    }
+
 
     private void evaluer(String command){
         IObjEmp emp;
