@@ -72,10 +72,31 @@ public class CalcUI {
     private ObjEmpEntier parseIntegerPrompt(String input){
         ObjEmpEntier result=null;
 
-        Pattern pattern=Pattern.compile("^(-?)(0|([1-9][0-9]*))(\\.[0-9]+)?$");
+        Pattern pattern=Pattern.compile("(\\d+)");
         Matcher matcher=pattern.matcher(input);
+        
+        if (matcher.matches()){
+            try{
+            result=new ObjEmpEntier(Integer.parseInt(matcher.group(1)));
+            }catch(Exception e){}
+        }
 
-        System.out.println(matcher);
+        return result;
+    }
+
+    private ObjEmpVecteur3D parseVector3DPrompt(String input){
+        ObjEmpVecteur3D result=null;
+
+        Pattern pattern=Pattern.compile("\\(([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)\\)");
+
+        Matcher matcher=pattern.matcher(input);
+        
+        if (matcher.matches()){
+            for (int i=0;i<=matcher.groupCount();i++) System.out.println(matcher.group(i));
+            try{
+            result=new ObjEmpVecteur3D(Double.parseDouble(matcher.group(1)), Double.parseDouble(matcher.group(3)),Double.parseDouble(matcher.group(5)));
+            }catch(Exception e){}
+        }
 
         return result;
     }
@@ -87,7 +108,11 @@ public class CalcUI {
         if (command.isEmpty()) return;
 
         try{
-            if ((emp=parseComplexPrompt(command))!=null){
+            if((emp=parseIntegerPrompt(command))!=null){
+                pile.push(emp);
+            }else if ((emp=parseComplexPrompt(command))!=null){
+                pile.push(emp);
+            }else if ((emp=parseVector3DPrompt(command))!=null){
                 pile.push(emp);
             }else{
                 pile.doOperation(command);
