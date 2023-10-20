@@ -1,3 +1,4 @@
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,16 +7,28 @@ public class CalcUI {
     private PileRPL pile;
     private Scanner scanner;
 
+    public static void main(String [] argv){
+        new CalcUI();
+    }
+
     CalcUI(int taille_pile){
         pile=new PileRPL(taille_pile);
         scanner=new Scanner(System.in);
         String command;
 
+        System.out.println("Welcome to RPL Calculator");
+        help();
+
         while(true){
-            affichePile();
-            command=prompt();
+            if (!pile.isEmpty()) affichePile();
+            try{
+                command=prompt();
+            }catch(NoSuchElementException e){
+                break;
+            }
             if (command.equals("exit")) break;
-            evaluer(command);
+            if (command.equals("help")) help();
+            else evaluer(command);
         }
 
     }
@@ -24,13 +37,24 @@ public class CalcUI {
         this(5);
     }
 
-    private void affichePile(){
-        for (IObjEmp elt:pile.dump()){
-            System.out.println("[\t\t"+elt+"\t\t]");
-        }
+    private void help(){
+        System.out.println("Press CTRL+D or type \"exit\" command to quit");
+        System.out.println("Type \"help\" command for help");
+        System.out.println("Supported operations: add,substract,multiply,divide,pop");
+        System.out.println("Supported types: integer,imaginary,vector3d");
     }
 
-    private String prompt(){
+    private void affichePile(){
+        IObjEmp[] dump=pile.dump();
+
+        System.out.println("----------------------");
+        for (int i=dump.length;i>0;){
+            System.out.println("["+i+"]"+"=>\t"+dump[--i]);
+        }
+        System.out.println("----------------------");
+    }
+
+    private String prompt() throws NoSuchElementException{
         System.out.print("Enter a command: ");  
         return scanner.nextLine();     
     }
@@ -92,7 +116,6 @@ public class CalcUI {
         Matcher matcher=pattern.matcher(input);
         
         if (matcher.matches()){
-            for (int i=0;i<=matcher.groupCount();i++) System.out.println(matcher.group(i));
             try{
             result=new ObjEmpVecteur3D(Double.parseDouble(matcher.group(1)), Double.parseDouble(matcher.group(3)),Double.parseDouble(matcher.group(5)));
             }catch(Exception e){}

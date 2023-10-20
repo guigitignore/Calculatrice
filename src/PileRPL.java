@@ -20,16 +20,27 @@ public class PileRPL {
     }
 
     public void doOperation(String operation) throws IncompatibleOperationException,StackIsFullException,StackIsEmptyException,UnknownOperationException,InsufficiantStackException{
-        if (nbObj<2) throw new InsufficiantStackException(2);
+        IObjEmp premier=null;
+        IObjEmp deuxieme=null;
 
-        IObjEmp premier=pop();
-        IObjEmp deuxieme=pop();
+        if (operation.equals("pop")){
+            pop();
+            return;
+        }
 
         try{
             Method method=IObjEmp.class.getMethod(operation,IObjEmp.class);
+            if (nbObj<2) throw new InsufficiantStackException(2);
+            premier=pop();
+            deuxieme=pop();
+
             push((IObjEmp)method.invoke(premier,deuxieme));
-        }catch(SecurityException|IllegalAccessException|NoSuchMethodException|InvocationTargetException e){
+        }catch(SecurityException|NoSuchMethodException e){
             throw new UnknownOperationException(operation);
+        }catch(InvocationTargetException|IllegalAccessException e){
+            push(deuxieme);
+            push(premier);
+            throw new IncompatibleOperationException("incompatible operation "+operation);
         }
     }
 
@@ -52,4 +63,5 @@ public class PileRPL {
     public String toString(){
         return Arrays.toString(dump());
     }
+
 }
