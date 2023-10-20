@@ -7,30 +7,27 @@ public class CalcUI {
     private PileRPL pile;
     private Scanner scanner;
 
-    public static void main(String [] argv){
-        new CalcUI();
-    }
 
     CalcUI(int taille_pile){
+        boolean quit=false;
         pile=new PileRPL(taille_pile);
         scanner=new Scanner(System.in);
-        String command;
+        String command=null;
 
         System.out.println("Welcome to RPL Calculator");
         help();
 
-        while(true){
+        while(quit!=true){
             if (!pile.isEmpty()) affichePile();
             try{
                 command=prompt();
+                if (command.equals("exit")) throw new NoSuchElementException();
+                if (command.equals("help")) help();
+                else evaluer(command);
             }catch(NoSuchElementException e){
-                break;
-            }
-            if (command.equals("exit")) break;
-            if (command.equals("help")) help();
-            else evaluer(command);
+                quit=true;
+            }  
         }
-
     }
 
     CalcUI(){
