@@ -1,0 +1,25 @@
+Welcome to RPL Calculator
+Press CTRL+D or type "exit" command to quit
+Type "help" command for help
+Supported operations: add,substract,multiply,divide,pop
+Supported types: integer,imaginary,vector3d
+Enter a command: An error occured: The stack need to have at least 2 elements
+Enter a command: An error occured: The stack need to have at least 2 elements
+Enter a command: An error occured: The stack need to have at least 2 elements
+Enter a command: Welcome to RPL Calculator
+Press CTRL+D or type "exit" command to quit
+Type "help" command for help
+Supported operations: add,substract,multiply,divide,pop
+Supported types: integer,imaginary,vector3d
+Enter a command: ----------------------
+[1]=>	1
+----------------------
+Enter a command: ----------------------
+[2]=>	2
+[1]=>	1
+----------------------
+Enter a command: ----------------------
+[2]=>	2
+[1]=>	1
+----------------------
+Enter a command: 

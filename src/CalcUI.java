@@ -1,3 +1,5 @@
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -6,15 +8,18 @@ import java.util.regex.Pattern;
 public class CalcUI {
     private PileRPL pile;
     private Scanner scanner;
+    private PrintStream out;
 
 
-    CalcUI(int taille_pile){
+    CalcUI(PileRPL pile,InputStream in,PrintStream out){
+        this.pile=pile;
+        this.out=out;
+
         boolean quit=false;
-        pile=new PileRPL(taille_pile);
-        scanner=new Scanner(System.in);
+        scanner=new Scanner(in);
         String command=null;
 
-        System.out.println("Welcome to RPL Calculator");
+        out.println("Welcome to RPL Calculator");
         help();
 
         while(quit!=true){
@@ -30,29 +35,36 @@ public class CalcUI {
         }
     }
 
+    CalcUI(InputStream in,PrintStream out){
+        this(new PileRPL(),in,out);
+    }
+
     CalcUI(){
-        this(5);
+        this(System.in,System.out);
     }
 
     private void help(){
-        System.out.println("Press CTRL+D or type \"exit\" command to quit");
-        System.out.println("Type \"help\" command for help");
-        System.out.println("Supported operations: add,substract,multiply,divide,pop");
-        System.out.println("Supported types: integer,imaginary,vector3d");
+        out.println("Press CTRL+D or type \"exit\" command to quit");
+        out.println("Type \"help\" command for help");
+        out.println("Supported operations: add,substract,multiply,divide,pop");
+        out.println("Supported types: integer,imaginary,vector3d");
     }
 
     private void affichePile(){
-        IObjEmp[] dump=pile.dump();
-
-        System.out.println("----------------------");
-        for (int i=dump.length;i>0;){
-            System.out.println("["+i+"]"+"=>\t"+dump[--i]);
+        IObjEmp[] dump;
+        synchronized(pile){
+            dump=pile.dump();
         }
-        System.out.println("----------------------");
+        
+        out.println("----------------------");
+        for (int i=dump.length;i>0;){
+            out.println("["+i+"]"+"=>\t"+dump[--i]);
+        }
+        out.println("----------------------");
     }
 
     private String prompt() throws NoSuchElementException{
-        System.out.print("Enter a command: ");  
+        out.print("Enter a command: ");  
         return scanner.nextLine();     
     }
 
@@ -128,17 +140,19 @@ public class CalcUI {
         if (command.isEmpty()) return;
 
         try{
-            if((emp=parseIntegerPrompt(command))!=null){
+            synchronized(pile){
+                if((emp=parseIntegerPrompt(command))!=null){
                 pile.push(emp);
-            }else if ((emp=parseComplexPrompt(command))!=null){
-                pile.push(emp);
-            }else if ((emp=parseVector3DPrompt(command))!=null){
-                pile.push(emp);
-            }else{
-                pile.doOperation(command);
-            }
+                }else if ((emp=parseComplexPrompt(command))!=null){
+                    pile.push(emp);
+                }else if ((emp=parseVector3DPrompt(command))!=null){
+                    pile.push(emp);
+                }else{
+                    pile.doOperation(command);
+                }
+            }   
         }catch(Exception e){
-            System.out.println("An error occured: "+e.getMessage());
+            out.println("An error occured: "+e.getMessage());
         }
 
     }

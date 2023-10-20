@@ -1,18 +1,18 @@
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
-class CalcOutputStream extends OutputStream{
+class OutputStreamMultiplexer extends OutputStream{
 
-    public List<OutputStream> streams;
+    public ArrayList<OutputStream> streams;
 
-    CalcOutputStream(){
+    OutputStreamMultiplexer(){
         streams=new ArrayList<>();
     }
 
-    public void add(OutputStream stream){
+    public OutputStreamMultiplexer add(OutputStream stream){
         streams.add(stream);
+        return this;
     }
 
     @Override

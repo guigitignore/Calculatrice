@@ -11,6 +11,10 @@ public class PileRPL {
         nbObj=0;
     }
 
+    PileRPL(){
+        this(5);
+    }
+
     protected boolean isFull(){
         return nbObj==pile.length;
     }
