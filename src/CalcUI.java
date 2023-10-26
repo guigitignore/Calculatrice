@@ -1,22 +1,20 @@
-import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CalcUI {
     private PileRPL pile;
-    private Scanner scanner;
     private PrintStream out;
 
 
-    CalcUI(PileRPL pile,InputStream in,PrintStream out){
+    CalcUI(PileRPL pile,BufferedReader in,PrintStream out){
         this.pile=pile;
         this.out=out;
 
         boolean quit=false;
-        scanner=new Scanner(in);
         String command=null;
 
         out.println("Welcome to RPL Calculator");
@@ -25,23 +23,26 @@ public class CalcUI {
         while(quit!=true){
             if (!pile.isEmpty()) affichePile();
             try{
-                command=prompt();
-                if (command.equals("exit")) throw new NoSuchElementException();
+                out.print("Enter a command: "); 
+                command=in.readLine();
+                if (command==null || command.equals("exit")) throw new IOException();
                 if (command.equals("help")) help();
                 else evaluer(command);
-            }catch(NoSuchElementException e){
+            }catch(IOException e){
                 quit=true;
             }  
         }
     }
 
-    CalcUI(InputStream in,PrintStream out){
+
+    CalcUI(BufferedReader in,PrintStream out){
         this(new PileRPL(),in,out);
     }
 
     CalcUI(){
-        this(System.in,System.out);
+        this(new PileRPL(),new BufferedReader(new InputStreamReader(System.in)),System.out);
     }
+
 
     private void help(){
         out.println("Press CTRL+D or type \"exit\" command to quit");
@@ -61,11 +62,6 @@ public class CalcUI {
             out.println("["+i+"]"+"=>\t"+dump[--i]);
         }
         out.println("----------------------");
-    }
-
-    private String prompt() throws NoSuchElementException{
-        out.print("Enter a command: ");  
-        return scanner.nextLine();     
     }
 
     private ObjEmpImaginaire parseComplexPrompt(String input){

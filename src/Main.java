@@ -2,89 +2,75 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Hashtable;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 
 public class Main {
 
-    static InputStream replay=null;
-    static OutputStream log=null;
-    static PileRPL shared=null;
-    static ServerSocket remote=null;
-    static Socket socket=null;
+
     public static void main(String [] argv){
         
-        
+        Hashtable<String, Boolean> dict= new Hashtable<>();
+        ServerSocket server=null;
+        BufferedReaderRepeater in=null;
         
 
         for (String arg:argv){
-            switch(arg){
-                case "replay":
-                    try{
-                        replay=new FileInputStream("log.txt");
-                    }catch(FileNotFoundException e){
-                        System.out.println("Replay error:"+e.getMessage());
-                    }
-                    break;
-                case "log":
-                    try{
-                        log=new FileOutputStream("log.txt");
-                    }catch(FileNotFoundException e){
-                        System.out.println("Log error:"+e.getMessage());
-                    }
-                    break;
-                case "shared":
-                    shared=new PileRPL();
-                    break;
-                case "remote":
-                    try{
-                        remote=new ServerSocket(1111);
-                    }catch(IOException e){
-                        System.out.println("Remote error:"+e.getMessage());
-                    }
-                    break;   
-            }
+            dict.put(arg,true);
         }
-        
-        if (remote!=null){
-            while (true){
-                try{
-                    socket=remote.accept();
-                }catch(IOException e){
-                    break;
+
+        if (dict.get("remote")!=null){
+            try{
+                server=new ServerSocket(1111);
+                System.out.println("Listening on port "+server.getLocalPort());
+
+                PileRPL shared=dict.get("shared")!=null ? new PileRPL() : null;
+
+                while (true){
+                    
+                    Socket socket=server.accept();
+                    
+                    if (dict.get("replay")!=null){
+                        in=new BufferedReaderRepeater(new InputStreamReader(new FileInputStream("log.txt")));
+                        in.addRepeater(new PrintStream(socket.getOutputStream()));
+                    }else{
+                        in=new BufferedReaderRepeater(new InputStreamReader(socket.getInputStream()));
+                    }
+
+                    new RemoteThread(socket, shared==null? new PileRPL() : shared,in);
                 }
                 
-                new Thread(){
-                    public void run(){
-                        
-                        try{
-                            OutputStreamMultiplexer out=new OutputStreamMultiplexer();
-                            out.add(socket.getOutputStream());
-
-                            if (log!=null){
-                                out.add(log);
-                            }
-                            if (shared!=null){
-                                new CalcUI(shared, socket.getInputStream(), new PrintStream(out));
-                            }else{
-                                new CalcUI(socket.getInputStream(), new PrintStream(socket.getOutputStream()));
-                            }
-                            out.close();
-                            socket.close();
-                        }catch(IOException e){}
-                        
-                        
-                    }
-                }.start();
-
-
+            }catch(IOException e){
+                System.err.println(e.getMessage());
+                try{
+                    server.close();
+                }catch(IOException ex){}
+                
             }
             
         }else{
-            new CalcUI();
+            try{
+                if (dict.get("log")!=null){
+                    in=new BufferedReaderRepeater(new InputStreamReader(System.in));
+                    in.addRepeater(new PrintStream("log.txt"));
+                }else{
+                    if (dict.get("replay")!=null){
+                        in=new BufferedReaderRepeater(new InputStreamReader(new FileInputStream("log.txt")));
+                        in.addRepeater(System.out);
+                    }else{
+                        in=new BufferedReaderRepeater(new InputStreamReader(System.in));
+                    }
+                }
+
+                new CalcUI(in,System.out);
+            }catch(FileNotFoundException e){
+                System.err.println(e.getMessage());
+            }
+            
         }
 
     }
