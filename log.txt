@@ -1,5 +1,0 @@
-1
-2
-multiply
-18
-divide
