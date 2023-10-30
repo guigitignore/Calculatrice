@@ -14,14 +14,32 @@ public class CalcUI {
         this.pile=pile;
         this.out=out;
 
-        boolean quit=false;
         String command=null;
+        int size=0;
 
         out.println("Welcome to RPL Calculator");
+
+        if (this.pile==null){
+            for (boolean quit=false;quit!=true;){
+                try{
+                    out.print("Please choose a size for PileRPL:");
+                    command=in.readLine();
+
+                    if (command==null) return;
+                    
+                    size=Integer.parseInt(command);
+                    if (size>0) quit=true;
+                    else out.println("Invalid size");
+                }catch(IOException|NumberFormatException e){
+                    out.println("Read error");
+                }
+            }
+            this.pile=new PileRPL(size);
+        }
         help();
 
-        while(quit!=true){
-            if (!pile.isEmpty()) affichePile();
+        for (boolean quit=false;quit!=true;){
+            if (!this.pile.isEmpty()) affichePile();
             try{
                 out.print("Enter a command: "); 
                 command=in.readLine();

@@ -39,7 +39,7 @@ public class Main {
                         in=new BufferedReaderRepeater(new InputStreamReader(socket.getInputStream()));
                     }
 
-                    new RemoteThread(socket, shared==null? new PileRPL() : shared,in);
+                    new RemoteThread(socket, shared ,in);
                 }
                 
             }catch(IOException e){
@@ -64,7 +64,7 @@ public class Main {
                     }
                 }
 
-                new CalcUI(in,System.out);
+                new CalcUI(null,in,System.out);
             }catch(FileNotFoundException e){
                 System.err.println(e.getMessage());
             }
