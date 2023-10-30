@@ -22,11 +22,11 @@ public class CalcUI {
         if (this.pile==null){
             for (boolean quit=false;quit!=true;){
                 try{
-                    out.print("Please choose a size for PileRPL:");
+                    out.print("Please choose a size for PileRPL (or type \"exit\"): ");
                     command=in.readLine();
 
-                    if (command==null) return;
-                    
+                    if (command==null || command.equals("exit")) return;
+
                     size=Integer.parseInt(command);
                     if (size>0) quit=true;
                     else out.println("Invalid size");
